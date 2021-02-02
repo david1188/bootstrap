@@ -7,7 +7,7 @@ readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,
 
 
 function install_salt_repo() {
-#  curl -L https://archive.repo.saltstack.com/apt/ubuntu/18.04/amd64/2017.7/SALTSTACK-GPG-KEY.pub | apt-key add -
+  wget -O - https://archive.repo.saltstack.com/apt/ubuntu/18.04/amd64/2017.7/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
   local repofile='/etc/apt/sources.list.d/saltstack.list'
   echo "deb https://archive.repo.saltstack.com/apt/ubuntu/18.04/amd64/2017.7/ $(lsb_release -cs) main" | sudo tee -a $repofile
 }
