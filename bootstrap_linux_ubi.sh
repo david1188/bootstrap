@@ -14,8 +14,8 @@ function install_salt_repo() {
 
 function install_salt_master() {
   install_salt_repo
-  apt update
-  apt install salt-master salt-minion -y
+  apt-get update
+  apt-get install salt-master salt-minion -y
   echo -e "$MASTER_CONFIG" | tr ',' '\n' > /etc/salt/master
   for service in salt-master salt-minion; do
     systemctl enable $service.service
@@ -27,7 +27,7 @@ function install_salt_master() {
 function install_salt_minion() {
   local master=$1
   install_salt_repo
-  apt install salt-minion -y
+  apt-get install salt-minion -y
   echo "master: $master" > /etc/salt/minion
   systemctl enable salt-minion.service
   systemctl start salt-minion.service
