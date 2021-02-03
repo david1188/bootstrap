@@ -4,7 +4,6 @@ set -e
 set -u
 
 SURL=https://nuanceninjas.visualstudio.com
-PAT=32scqoyc6eiftgtwytj74udelybz5gzhbqxflanrrrvmj4eq66ya
 POOL=DMO-SREImages
 HOSTNAME=uwinf-pvvsta003
 
@@ -17,7 +16,7 @@ function provision_agent() {
   /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz
   chown -R root. /opt/agent
   chmod -R 777 /opt/agent
-  runuser -l dragonadmin -c '/opt/agent/config.sh --unattended --url $SURL --auth pat --token $PAT --pool $POOL --agent $HOSTNAME --work _work --acceptTeeEula'
+  runuser -l dragonadmin -c '/opt/agent/config.sh --unattended --url "$SURL" --auth pat --token "$PAT" --pool "$POOL" --agent "$HOSTNAME" --work _work --acceptTeeEula'
 }
 
 provision_agent
