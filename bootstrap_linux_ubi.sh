@@ -15,7 +15,7 @@ function provision_agent() {
   wget https://vstsagentpackage.azureedge.net/agent/2.181.1/vsts-agent-linux-x64-2.181.1.tar.gz -P /opt/agent
   cd /opt/agent
   /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz
-  /opt/agent/config.sh --unattended --url $SURL --auth pat --token $PAT --pool $POOL --agent $HOSTNAME --work _work --acceptTeeEula
+  runuser -l dragonadmin -c '/opt/agent/config.sh --unattended --url $SURL --auth pat --token $PAT --pool $POOL --agent $HOSTNAME --work _work --acceptTeeEula'
 }
 
 provision_agent
