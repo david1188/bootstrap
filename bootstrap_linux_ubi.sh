@@ -6,66 +6,60 @@ set -u
 SURL=https://nuanceninjas.visualstudio.com
 POOL=DMO-SREImages
 HOSTNAME=uwinf-pvvsta003
+PAT=$1
 
-readonly MASTER_CONFIG='file_roots:,  base:,    - /srv/salt,    - /srv/formulas,    - /srv/salt/roles,pillar_roots:,  base:,    - /srv/pillar,  dev:,    - /srv/pillar/dev,  production:,    - /srv/pillar/production'
+function remove_source() {
+  if [ -d '/opt/agent' ]; then
+    sudo rm -r /opt/agent
+  fi
+}
 
-function provision_agent() {
-  sudo mkdir /opt/agent
+function download_agent_installer() {
+  sudo mkdir -p /opt/agent
   wget https://vstsagentpackage.azureedge.net/agent/2.181.1/vsts-agent-linux-x64-2.181.1.tar.gz -P /opt/agent
+}
+
+function decompress() {
   cd /opt/agent
   /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz
   chown -R root. /opt/agent
   chmod -R 777 /opt/agent
-  runuser -l dragonadmin -c '/opt/agent/config.sh --unattended --url "$SURL" --auth pat --token "$PAT" --pool "$POOL" --agent "$HOSTNAME" --work _work --acceptTeeEula'
+}
+function deploy_agent() {
+  runuser -l dragonadmin -c "/opt/agent/config.sh --unattended --url ${SURL} --auth pat --token ${PAT} --pool ${POOL} --agent ${HOSTNAME} --work _work --acceptTeeEula"
 }
 
-provision_agent
-#function install_salt_repo() {
-#  wget -O - https://archive.repo.saltstack.com/apt/ubuntu/18.04/amd64/2017.7/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
-#  local repofile='/etc/apt/sources.list.d/saltstack.list'
-#  echo "deb https://archive.repo.saltstack.com/apt/ubuntu/18.04/amd64/2017.7/ $(lsb_release -cs) main" | sudo tee -a $repofile
-#}
+function configure_agent() {
+  cd /opt/agent
+  bash svc.sh install
 
-#function install_salt_master() {
-#  install_salt_repo
-#  apt-get update
-#  apt-get install salt-master salt-minion -y
-#  echo -e "$MASTER_CONFIG" | tr ',' '\n' > /etc/salt/master
-#  for service in salt-master salt-minion; do
-#    systemctl enable $service.service
-#    systemctl start $service.service
-#  done
-#}
+  printf "
+  [Unit]
+  Description=Azure Pipelines Agent (nuanceninjas.DMO-SREImages.PackerAgent)
+  After=network.target
 
+  [Service]
+  ExecStart=/opt/agent/runsvc.sh
+  User=dragonadmin
+  WorkingDirectory=/opt/agent
+  KillMode=process
+  KillSignal=SIGTERM
+  TimeoutStopSec=5min
 
-#function install_salt_minion() {
-#  local master=$1
-#  install_salt_repo
-#  apt-get update
-#  apt-get install salt-minion -y
-#  echo "master: $master" > /etc/salt/minion
-#  systemctl enable salt-minion.service
-#  systemctl start salt-minion.service
-#  salt-call saltutil.sync_grains
-#  salt-call saltutil.refresh_pillar
-#  systemctl stop salt-minion.service
-#  salt-call file.remove /etc/salt/minion.d/f_defaults.conf
-#  salt-call saltutil.sync_grains
-#  salt-call saltutil.refresh_pillar
-#  systemctl start salt-minion.service
-#  salt-call saltutil.sync_grains
-#  salt-call saltutil.refresh_pillar
-#  echo "startup_states: highstate" >> /etc/salt/minion
-#  salt-call state.highstate -l debug
-#  sleep 180
-#}
+  [Install]
+  WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.PackerAgent.service
+  
+  systemctl enable vsts.agent.nuanceninjas.PackerAgent.service
+  systemctl start vsts.agent.nuanceninjas.PackerAgent.service
+}
 
-
-#main() {
-#  if [[ $1 == 'master' ]]; then
-#     install_salt_master
-#  else
-#     install_salt_minion $2
-#  fi
-#}
-#main $@
+echo -e '## Remove sources ##'
+remove_source
+echo -e '## Download agent isntaller ##'
+download_agent_installer
+echo -e '## Decompress installer ##'
+decompress
+echo -e '## Deploy build agent ##'
+deploy_agent
+echo -e '## Configure build agent ##'
+configure_agent
