@@ -8,6 +8,12 @@ POOL=DMO-SREImages
 HOSTNAME=uwinf-pvvsta003
 PAT=$1
 
+function auto_updates() {
+  sudo apt install unattended-upgrades
+
+  printf "APT::Periodic::AutocleanInterval "7";\n" >> /etc/apt/apt.conf.d/20auto-upgrades
+}
+
 function remove_source() {
   if [ -d '/opt/agent' ]; then
     sudo rm -r /opt/agent
@@ -33,21 +39,20 @@ function configure_agent() {
   cd /opt/agent
   bash svc.sh install
 
-  printf "
-  [Unit]
-  Description=Azure Pipelines Agent (nuanceninjas.DMO-SREImages.PackerAgent)
-  After=network.target
+  printf "[Unit]
+Description=Azure Pipelines Agent (nuanceninjas.DMO-SREImages.PackerAgent)
+After=network.target
 
-  [Service]
-  ExecStart=/opt/agent/runsvc.sh
-  User=dragonadmin
-  WorkingDirectory=/opt/agent
-  KillMode=process
-  KillSignal=SIGTERM
-  TimeoutStopSec=5min
+[Service]
+ExecStart=/opt/agent/runsvc.sh
+User=dragonadmin
+WorkingDirectory=/opt/agent
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=5min
 
-  [Install]
-  WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.PackerAgent.service
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.PackerAgent.service
 
   systemctl enable vsts.agent.nuanceninjas.PackerAgent.service
   systemctl start vsts.agent.nuanceninjas.PackerAgent.service
@@ -61,8 +66,8 @@ function install_packer() {
 }
 
 function deploy_packer_plugins() {
-  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --output /opt/packer_plugins/win_update.tar.gz
-  tar -xvzf win_update.tar.gz -C /home/dragonadmin/.packer.d
+  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --create-dirs /otp/packer_plugins --output /opt/packer_plugins/win_update.tar.gz
+  tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
 }
 
 echo -e '## Remove sources ##'
@@ -86,3 +91,5 @@ install_packer
 echo -e '## Deploy packer plugins ##'
 deploy_packer_plugins
 
+echo -e '## Setup auto updates ##'
+auto_updates
