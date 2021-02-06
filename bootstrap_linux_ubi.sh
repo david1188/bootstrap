@@ -48,18 +48,40 @@ function configure_agent() {
 
   [Install]
   WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.PackerAgent.service
-  
+
   systemctl enable vsts.agent.nuanceninjas.PackerAgent.service
   systemctl start vsts.agent.nuanceninjas.PackerAgent.service
 }
 
+function install_packer() {
+  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  sudo apt-get update && sudo apt-get install packer -y
+}
+
+function deploy_packer_plugins() {
+  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --output /opt/packer_plugins/win_update.tar.gz
+  tar -xvzf win_update.tar.gz -C /home/dragonadmin/.packer.d
+}
+
 echo -e '## Remove sources ##'
 remove_source
+
 echo -e '## Download agent isntaller ##'
 download_agent_installer
+
 echo -e '## Decompress installer ##'
 decompress
+
 echo -e '## Deploy build agent ##'
 deploy_agent
+
 echo -e '## Configure build agent ##'
 configure_agent
+
+echo -e '## Install packer ##'
+install_packer
+
+echo -e '## Deploy packer plugins ##'
+deploy_packer_plugins
+
