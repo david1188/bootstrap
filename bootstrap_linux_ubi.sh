@@ -61,6 +61,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.Packer
 function install_packer() {
 #  export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 #  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+  apt-get install unzip -y
   mkdir /opt/packer
   wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip -P /opt/packer
   unzip /opt/packer/packer_1.6.6_linux_amd64.zip
