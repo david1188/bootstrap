@@ -64,7 +64,7 @@ function install_packer() {
   apt-get install unzip -y
   mkdir /opt/packer
   wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip -P /opt/packer
-  unzip /opt/packer/packer_1.6.6_linux_amd64.zip
+  unzip /opt/packer/packer_1.6.6_linux_amd64.zip -d /opt/packer
   cp /opt/packer/packer /bin/
 #  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 #  sudo apt-get update && sudo apt-get install packer -y
