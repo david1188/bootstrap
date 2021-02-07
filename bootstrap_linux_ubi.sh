@@ -72,7 +72,7 @@ function install_packer() {
 }
 
 function deploy_packer_plugins() {
-  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --create-dirs /otp/packer_plugins --output /opt/packer_plugins/win_update.tar.gz
+#  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --create-dirs /otp/packer_plugins --output /opt/packer_plugins/win_update.tar.gz
   tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
 }
 
