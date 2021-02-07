@@ -69,7 +69,7 @@ function install_packer() {
 #  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 #  sudo apt-get update && sudo apt-get install packer -y
 #  runuser -l dragonadmin -c "packer version"
-   packer version
+   /bin/packer version
 }
 
 function deploy_packer_plugins() {
