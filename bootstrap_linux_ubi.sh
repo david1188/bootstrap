@@ -30,12 +30,12 @@ for dir in ${dirs[@]}
 
 function download_agent_installer() {
   agent_url="https://vstsagentpackage.azureedge.net/agent/2.181.1/vsts-agent-linux-x64-2.181.1.tar.gz"
+
   /usr/bin/wget ${agent_url} -P /opt/agent
 }
 
 function decompress() {
-  cd /opt/agent
-  /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz
+  /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz /opt/agent
   /bin/chown -R root. /opt/agent
   /bin/chmod -R 777 /opt/agent
 }
@@ -66,15 +66,19 @@ WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.Packer
 }
 
 function install_packer() {
+  packer_installer="https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip"
+
   /usr/bin/apt-get install unzip -y
-  /usr/bin/wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip -O /opt/packer/packer_amd64.zip
+  /usr/bin/wget ${packer_installer} -O /opt/packer/packer_amd64.zip
   /usr/bin/unzip /opt/packer/packer_amd64.zip -d /opt/packer
   /bin/cp /opt/packer/packer /bin/
   /bin/packer version
 }
 
 function deploy_packer_plugins() {
-  /usr/bin/wget https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz -O /opt/packer_plugins/win_update.tar.gz
+  packer_plugins="https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz"
+
+  /usr/bin/wget ${packer_plugins} -O /opt/packer_plugins/win_update.tar.gz
   /bin/tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
 }
 
