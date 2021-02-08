@@ -35,7 +35,7 @@ function download_agent_installer() {
 }
 
 function decompress() {
-  /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz /opt/agent
+  /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz -C /opt/agent
   /bin/chown -R root. /opt/agent
   /bin/chmod -R 777 /opt/agent
 }
