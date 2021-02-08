@@ -5,39 +5,46 @@ set -u
 
 SURL=https://nuanceninjas.visualstudio.com
 POOL=DMO-SREImages
-HOSTNAME=uwinf-pvvsta003
+HOSTNAME=${HOSTNAME}
 PAT=$1
 
-function auto_updates() {
-  sudo apt install unattended-upgrades
 
-  printf "APT::Periodic::AutocleanInterval "7";\n" >> /etc/apt/apt.conf.d/20auto-upgrades
-}
+declare -a dirs
+dirs=(/opt/agent
+      /opt/packer
+      /opt/packer_plugins
+      /home/dragonadmin/.packer.d
+)
 
-function remove_source() {
-  if [ -d '/opt/agent' ]; then
-    sudo rm -r /opt/agent
-  fi
+function handle_source_dirs() {
+for dir in ${dirs[@]}
+  do
+    if [[ ! -d ${dir} ]];
+      then
+        sudo /bin/mkdir -p ${dir}
+    else
+        sudo /bin/rm -r ${dir} && sudo /bin/mkdir -p ${dir}
+    fi
+  done
 }
 
 function download_agent_installer() {
-  sudo mkdir -p /opt/agent
-  wget https://vstsagentpackage.azureedge.net/agent/2.181.1/vsts-agent-linux-x64-2.181.1.tar.gz -P /opt/agent
+  agent_url="https://vstsagentpackage.azureedge.net/agent/2.181.1/vsts-agent-linux-x64-2.181.1.tar.gz"
+  /usr/bin/wget ${agent_url} -P /opt/agent
 }
 
 function decompress() {
   cd /opt/agent
   /bin/tar -xvzf /opt/agent/vsts-agent-linux-x64-2.181.1.tar.gz
-  chown -R root. /opt/agent
-  chmod -R 777 /opt/agent
+  /bin/chown -R root. /opt/agent
+  /bin/chmod -R 777 /opt/agent
 }
 function deploy_agent() {
   runuser -l dragonadmin -c "/opt/agent/config.sh --unattended --url ${SURL} --auth pat --token ${PAT} --pool ${POOL} --agent ${HOSTNAME} --work _work --acceptTeeEula"
 }
 
 function configure_agent() {
-  cd /opt/agent
-  bash svc.sh install
+  /bin/bash /opt/agent/svc.sh install
 
   printf "[Unit]
 Description=Azure Pipelines Agent (nuanceninjas.DMO-SREImages.PackerAgent)
@@ -54,34 +61,30 @@ TimeoutStopSec=5min
 [Install]
 WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.PackerAgent.service
 
-  systemctl enable vsts.agent.nuanceninjas.PackerAgent.service
-  systemctl start vsts.agent.nuanceninjas.PackerAgent.service
+  /bin/systemctl enable vsts.agent.nuanceninjas.PackerAgent.service
+  /bin/systemctl start vsts.agent.nuanceninjas.PackerAgent.service
 }
 
 function install_packer() {
-#  export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-#  curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-  apt-get install unzip -y
-  mkdir /opt/packer
-  wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip -P /opt/packer
-  unzip /opt/packer/packer_1.6.6_linux_amd64.zip -d /opt/packer
-  cp /opt/packer/packer /bin/
-#  sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-#  sudo apt-get update && sudo apt-get install packer -y
-#  runuser -l dragonadmin -c "packer version"
-   /bin/packer version
+  /usr/bin/apt-get install unzip -y
+  /usr/bin/wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip -O /opt/packer/packer_amd64.zip
+  /usr/bin/unzip /opt/packer/packer_amd64.zip -d /opt/packer
+  /bin/cp /opt/packer/packer /bin/
+  /bin/packer version
 }
 
 function deploy_packer_plugins() {
-#  curl -fssL https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz --create-dirs /otp/packer_plugins --output /opt/packer_plugins/win_update.tar.gz
-  mkdir /home/dragonadmin/.packer.d
-  mkdir /opt/packer_plugins
-  wget https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz -O /opt/packer_plugins/win_update.tar.gz
-  tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
+  /usr/bin/wget https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz -O /opt/packer_plugins/win_update.tar.gz
+  /bin/tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
 }
 
-echo -e '## Remove sources ##'
-remove_source
+function auto_updates() {
+  /usr/bin/apt-get install unattended-upgrades
+  printf "APT::Periodic::AutocleanInterval "7";\n" >> /etc/apt/apt.conf.d/20auto-upgrades
+}
+
+echo -e '## Create sources ##'
+handle_source_dirs
 
 echo -e '## Download agent isntaller ##'
 download_agent_installer
