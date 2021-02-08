@@ -44,7 +44,9 @@ function deploy_agent() {
 }
 
 function configure_agent() {
-  /bin/bash /opt/agent/svc.sh install
+  cd /opt/agent
+  #/bin/bash /opt/agent/svc.sh install
+  /bin/bash svc.sh install
 
   printf "[Unit]
 Description=Azure Pipelines Agent (nuanceninjas.DMO-SREImages.PackerAgent)
