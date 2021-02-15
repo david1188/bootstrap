@@ -67,6 +67,14 @@ WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.Packer
   /bin/systemctl start vsts.agent.nuanceninjas.PackerAgent.service
 }
 
+function install_azurecli() {
+  az_installer="https://aka.ms/InstallAzureCLIDeb"
+
+  /usr/bin/wget ${az_installer} -O /opt/
+  cd /opt/
+  /bin/bash InstallAzureCLIDeb
+}
+
 function install_packer() {
   packer_installer="https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip"
 
@@ -104,6 +112,9 @@ deploy_agent
 
 echo -e '## Configure build agent ##'
 configure_agent
+
+echo -e '## Install azure-cli ##'
+install_azurecli
 
 echo -e '## Install packer ##'
 install_packer
