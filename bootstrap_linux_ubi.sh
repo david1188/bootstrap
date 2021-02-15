@@ -73,6 +73,7 @@ function install_azurecli() {
   /usr/bin/wget ${az_installer} -O /opt/InstallAzureCLIDeb
   cd /opt/
   /bin/bash InstallAzureCLIDeb
+  /bin/chmod 777 /home/dragonadmin/.azure/config
 }
 
 function install_packer() {
