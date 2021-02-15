@@ -13,7 +13,7 @@ declare -a dirs
 dirs=(/opt/agent
       /opt/packer
       /opt/packer_plugins
-      /home/dragonadmin/.packer.d
+      /home/dragonadmin/.packer.d/plugins
 )
 
 function handle_source_dirs() {
@@ -81,7 +81,8 @@ function deploy_packer_plugins() {
   packer_plugins="https://github.com/rgl/packer-provisioner-windows-update/releases/download/v0.10.1/packer-provisioner-windows-update_0.10.1_linux_amd64.tar.gz"
 
   /usr/bin/wget ${packer_plugins} -O /opt/packer_plugins/win_update.tar.gz
-  /bin/tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d
+  /bin/tar -xvzf /opt/packer_plugins/win_update.tar.gz -C /home/dragonadmin/.packer.d/plugins
+  /bin/chmod -R 777 /home/dragonadmin/.packer.d/plugins
 }
 
 function auto_updates() {
