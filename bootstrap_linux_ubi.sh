@@ -70,7 +70,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/vsts.agent.nuanceninjas.Packer
 function install_azurecli() {
   az_installer="https://aka.ms/InstallAzureCLIDeb"
 
-  /usr/bin/wget ${az_installer} -O /opt/
+  /usr/bin/wget ${az_installer} -O /opt/InstallAzureCLIDeb
   cd /opt/
   /bin/bash InstallAzureCLIDeb
 }
