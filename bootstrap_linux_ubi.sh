@@ -80,6 +80,7 @@ function install_packer() {
   packer_installer="https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip"
 
   /usr/bin/apt-get install unzip -y
+  /usr/bin/apt-get install jq -y
   /usr/bin/wget ${packer_installer} -O /opt/packer/packer_amd64.zip
   /usr/bin/unzip /opt/packer/packer_amd64.zip -d /opt/packer
   /bin/cp /opt/packer/packer /bin/
